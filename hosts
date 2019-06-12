@@ -1,0 +1,8 @@
+[master]
+master ansible_host=<master_ip> hostname=k8s-master cidr_network=<CIDR_config> user=<user_name>
+
+[workers]
+<worker1_ip> hostname=k8s-worker1
+<worker2_ip> hostname=k8s-worker2
+<worker3_ip> hostname=k8s-worker3
+
