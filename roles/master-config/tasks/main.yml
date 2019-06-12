@@ -1,0 +1,62 @@
+---
+- name: Set Hostname
+  shell: "hostnamectl set-hostname {{hostname}}"
+  tags:
+    - master-config
+    - set-hostname
+
+- name: Disable Swap
+  shell: swapoff -a
+  tags:
+    - master-config
+    - disable-swap
+
+- name: Set Up host file
+  lineinfile:
+    line: "{{ansible_default_ipv4.address}} {{hostname}}"
+    path: /etc/hosts
+  tags:
+    - master-config
+    - host-file
+
+- name: Initialize Master Node
+  shell: "kubeadm init --pod-network-cidr={{cidr_network}}"
+  tags:
+    - master-config
+    - initialize-master-node
+
+- name: Create .kube directory
+  file:
+    path: "/home/{{user}}/.kube"
+    state: directory
+    owner: "{{user}}"
+    group: "{{user}}"
+  tags:
+    - master-config
+    - create-kube-dir
+
+- name: Move K8s Config
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{user}}/.kube/config"
+    remote_src: yes
+    owner: "{{user}}"
+    group: "{{user}}"
+  tags:
+    - master-config
+    - move-k8s-config
+
+- name: Set Up Flannel Pod Network
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  become: no
+  tags:
+    - master-config
+    - flannel-pod-network
+
+- name: Load Join Command
+  shell: kubeadm token create --print-join-command
+  register: kube_join_cmd
+  tags:
+    - worker-config
+    - load-join-command
+    - debug-cmd

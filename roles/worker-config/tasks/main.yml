@@ -1,0 +1,26 @@
+---
+- name: Set Hostname
+  shell: "hostnamectl set-hostname {{hostname}}"
+  tags:
+    - worker-config
+    - set-hostname
+
+- name: Disable Swap
+  shell: swapoff -a
+  tags:
+    - worker-config
+    - disable-swap
+
+- name: Set Up host file
+  lineinfile:
+    line: "{{ansible_default_ipv4.address}} {{hostname}}"
+    path: /etc/hosts
+  tags:
+    - worker-config
+    - host-file
+
+- name: Add Worker to cluster
+  shell: "{{hostvars['master']['kube_join_cmd'].stdout}}"
+  tags:
+    - worker-config
+    - add-worker-to-cluster
