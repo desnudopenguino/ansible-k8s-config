@@ -1,0 +1,16 @@
+---
+- name: Initialize K8s Master
+  hosts: master
+  gather_facts: true
+  become: true
+  become_method: sudo
+  roles:
+    - master-config
+
+- name: Initialize K8s Workers
+  hosts: workers
+  gather_facts: true
+  become: true
+  become_method: sudo
+  roles:
+    - worker-config
